@@ -1,0 +1,75 @@
+body {
+  background-color: rgb(187, 182, 182);
+}
+
+header{
+  margin-top:-20px;
+  background-color: white;
+  font-family:serif;
+  color:BLACK;
+  text-align: center;
+}
+
+header:hover{
+  background-color: black;
+  color:white;
+}
+
+header img{
+  width:40px;
+  height:35px
+}
+
+footer{
+  margin-bottom:-20px;
+  text-align: center;
+  background-color: gray;
+  font-size: 25px;
+}
+
+.container{
+  height:620px;
+}
+
+.basket {
+  top: 590px;
+  position: absolute;
+  margin-left: 550px;
+  width: 200px;
+  height: 100px;
+}
+
+.egg {
+  top: -60px;
+  position: absolute;
+  margin-left: 0px;
+  width: 50px;
+  height: 60px;
+}
+
+.gameOver{
+  margin: auto;
+  border-radius:5%;
+}
+
+.restart{
+  font-size: 20px;
+  margin-top: 20px
+}
+
+#message{
+  color:white;
+  padding-top: 200px;
+  text-align: center;
+  margin:auto;
+}
+
+.score{
+  text-align: left;
+  float: left;
+}
+
+.live{
+  text-align: right;
+  float: right;
+}
