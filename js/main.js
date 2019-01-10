@@ -1,5 +1,6 @@
 let lives = 3;
 let scores = 0;
+
 const startGame = function(eggId, eggMargin) {
   let timer = 30;
   let interval = setInterval(function() {
@@ -12,7 +13,21 @@ const startGame = function(eggId, eggMargin) {
   }, timer);
 };
 
-const getDimension = function(element, attribute) {
+const hasTouchedGround = function(eggPosition, pageTop) {
+  return eggPosition > pageTop;
+};
+
+const isInBasket = function(eggTop, eggLeft, basketLeft) {
+  let basketTop = 590;
+  let basketWidth = 200;
+  return (
+    eggTop > basketTop &&
+    eggLeft > basketLeft &&
+    eggLeft < basketLeft + basketWidth
+  );
+};
+
+const getPosition = function(element, attribute) {
   return +element.style[attribute].replace("px", "");
 };
 
@@ -22,23 +37,21 @@ const getElement = function(id) {
 
 const dropEgg = function(egg, eggMargin) {
   let topIncrement = 10;
-  let eggTopValue = getDimension(egg, "top") + topIncrement + "px";
+  let eggTopValue = getPosition(egg, "top") + topIncrement + "px";
   egg.style.marginLeft = eggMargin + "px";
   egg.style.top = eggTopValue;
 };
 
 const catchEgg = function(egg, interval, basket) {
-  let eggTop = getDimension(egg, "top");
-  let eggLeft = getDimension(egg, "marginLeft");
-  let basketLeft = getDimension(basket, "marginLeft");
-  let basketTop = 590;
-  let basketWidth = 200;
+  let eggTop = getPosition(egg, "top");
+  let eggLeft = getPosition(egg, "marginLeft");
+  let basketLeft = getPosition(basket, "marginLeft");
   let eggInitialTop = -160;
-  if (
-    eggTop > basketTop &&
-    eggLeft > basketLeft &&
-    eggLeft < basketLeft + basketWidth
-  ) {
+  // if (eggTop == 560 && eggLeft > basketLeft && eggLeft < basketLeft + 200) {
+  //   basket.src = "images/henwithegg.png";
+  // }
+  if (isInBasket(eggTop, eggLeft, basketLeft)) {
+    // basket.src = "images/basket.png";
     scores = scores + 1;
     getElement("score").innerText = scores;
     egg.style.top = eggInitialTop + "px";
@@ -50,10 +63,9 @@ const gameOverAction = function(lives) {
   if (lives <= 0) {
     getElement("container").style.textAlign = "center";
     getElement("container").innerHTML =
-      "<h1 id='message'>GAME OVER</h1><h2>Your Score is :" +
+      "<img id='message' src='/images/gameOver.png'><h2>Your Score is :" +
       scores +
-      "</h2><button class='restart' onclick='reload()'>RESTART</button>";
-    getElement("message").style.backgroundColor = "black";
+      "</h2><button class='restart' onclick='restart()'>RESTART</button>";
     getElement("message").style.width = "500px";
     getElement("message").style.height = "300px";
     getElement("message").style.borderRadius = "5%";
@@ -63,14 +75,15 @@ const gameOverAction = function(lives) {
 const initializeMissedegg = function(egg, life, interval) {
   let pageTop = 650;
   let eggInitialTop = -160;
-  if (getDimension(egg, "top") > pageTop - 50) {
-    egg.src = "images/omlet.png";
+  let eggPosition = getPosition(egg, "top");
+  if (eggPosition > pageTop - 50) {
+    egg.src = "/images/omlet.png";
   }
-  if (getDimension(egg, "top") > pageTop) {
+  if (hasTouchedGround(eggPosition, pageTop)) {
     egg.style.top = eggInitialTop + "px";
     lives -= 1;
     life.innerText = lives;
-    egg.src = "images/egg.png";
+    egg.src = "/images/egg.png";
     gameOverAction(lives);
     clearInterval(interval);
   }
@@ -104,10 +117,11 @@ const getMovement = function(event) {
   events["ArrowLeft"] = moveLeft;
   events["ArrowRight"] = moveRight;
   let basket = getElement("basket");
-  let basketMarginLeft = getDimension(basket, "marginLeft");
+  let basketMarginLeft = getPosition(basket, "marginLeft");
   events[event.key](basket.style, basketMarginLeft);
 };
 
-const reload = function() {
+const restart = function() {
   document.location.reload();
+  startMovement();
 };
