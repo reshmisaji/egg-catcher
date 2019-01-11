@@ -2,14 +2,14 @@ let lives = 3;
 let scores = 0;
 
 const startGame = function(eggId, eggMargin) {
-  let timer = 30;
+  let timer = 20;
   let interval = setInterval(function() {
     let life = getElement("live");
     let basket = getElement("basket");
     let egg = getElement(eggId);
     dropEgg(egg, eggMargin);
     catchEgg(egg, interval, basket);
-    initializeMissedegg(egg, life, interval);
+    missedEggs(egg, life, interval);
   }, timer);
 };
 
@@ -47,11 +47,8 @@ const catchEgg = function(egg, interval, basket) {
   let eggLeft = getPosition(egg, "marginLeft");
   let basketLeft = getPosition(basket, "marginLeft");
   let eggInitialTop = -160;
-  // if (eggTop == 560 && eggLeft > basketLeft && eggLeft < basketLeft + 200) {
-  //   basket.src = "images/henwithegg.png";
-  // }
+
   if (isInBasket(eggTop, eggLeft, basketLeft)) {
-    // basket.src = "images/basket.png";
     scores = scores + 1;
     getElement("score").innerText = scores;
     egg.style.top = eggInitialTop + "px";
@@ -59,66 +56,113 @@ const catchEgg = function(egg, interval, basket) {
   }
 };
 
+const isLivesOver = function(lives) {
+  return lives <= 0;
+};
+
+const customiseMessageBody = function() {
+  getElement("message").style.width = "500px";
+  getElement("message").style.height = "300px";
+  getElement("message").style.borderRadius = "5%";
+};
+
+const createMessageBody = function() {
+  getElement("container").innerHTML =
+    "<img id='message' src='/images/gameOver.png'><h2>Your Score is :" +
+    scores +
+    "</h2><button class='restart' onclick='restart()'>RESTART</button>";
+};
+
 const gameOverAction = function(lives) {
-  if (lives <= 0) {
+  if (isLivesOver(lives)) {
     getElement("container").style.textAlign = "center";
-    getElement("container").innerHTML =
-      "<img id='message' src='/images/gameOver.png'><h2>Your Score is :" +
-      scores +
-      "</h2><button class='restart' onclick='restart()'>RESTART</button>";
-    getElement("message").style.width = "500px";
-    getElement("message").style.height = "300px";
-    getElement("message").style.borderRadius = "5%";
+    createMessageBody();
+    customiseMessageBody();
   }
 };
 
-const initializeMissedegg = function(egg, life, interval) {
-  let pageTop = 650;
-  let eggInitialTop = -160;
-  let eggPosition = getPosition(egg, "top");
+const decrementLives = function(life) {
+  lives -= 1;
+  life.innerText = lives;
+};
+
+const regulateGameStatus = function(interval) {
+  gameOverAction(lives);
+  clearInterval(interval);
+};
+
+const eggMissed = function(egg, life, interval) {
+  egg.style.top = "-160px";
+  decrementLives(life);
+  egg.src = "/images/egg.png";
+  regulateGameStatus(interval);
+  return;
+};
+
+const brokenEgg = function(egg, pageTop, eggPosition) {
   if (eggPosition > pageTop - 50) {
     egg.src = "/images/omlet.png";
   }
+  return egg;
+};
+
+const missedEggs = function(egg, life, interval) {
+  let pageTop = 650;
+  let eggPosition = getPosition(egg, "top");
+  brokenEgg(egg, pageTop, eggPosition);
   if (hasTouchedGround(eggPosition, pageTop)) {
-    egg.style.top = eggInitialTop + "px";
-    lives -= 1;
-    life.innerText = lives;
-    egg.src = "/images/egg.png";
-    gameOverAction(lives);
-    clearInterval(interval);
+    eggMissed(egg, life, interval);
   }
 };
 
+const isInsideLeftBorder = function(basketMarginLeft) {
+  let pageExtremeLeft = -40;
+  return basketMarginLeft >= pageExtremeLeft;
+};
+
 const moveLeft = function(basketStyle, basketMarginLeft) {
-  let pageExtremeLeft = -10;
-  if (basketMarginLeft >= pageExtremeLeft) {
+  if (isInsideLeftBorder(basketMarginLeft)) {
     basketStyle.marginLeft = basketMarginLeft - 15 + "px";
   }
 };
 
+const isInsideRightBorder = function(basketMarginLeft) {
+  let pageExtremeRight = 1160;
+  return basketMarginLeft <= pageExtremeRight;
+};
+
 const moveRight = function(basketStyle, basketMarginLeft) {
-  let pageExtremeRight = 1200;
-  if (basketMarginLeft <= pageExtremeRight) {
+  if (isInsideRightBorder(basketMarginLeft)) {
     basketStyle.marginLeft = basketMarginLeft + 15 + "px";
   }
 };
 
 const startMovement = function() {
-  let timer = 3000;
-  let eggId = 1;
+  let eggId = "egg";
   setInterval(function() {
     let eggMargin = Math.floor(Math.random() * 1000 + 1);
     startGame(eggId, eggMargin);
-  }, timer);
+  }, 3000);
 };
 
-const getMovement = function(event) {
-  let events = new Object();
-  events["ArrowLeft"] = moveLeft;
-  events["ArrowRight"] = moveRight;
+const getBasket = function() {
   let basket = getElement("basket");
   let basketMarginLeft = getPosition(basket, "marginLeft");
+  return { basket, basketMarginLeft };
+};
+
+const applyMovement = function(event, events) {
+  let { basket, basketMarginLeft } = getBasket();
   events[event.key](basket.style, basketMarginLeft);
+};
+
+const createEventsObject = function() {
+  return { ArrowLeft: moveLeft, ArrowRight: moveRight };
+};
+
+const getMovements = function(event) {
+  let events = createEventsObject();
+  applyMovement(event, events);
 };
 
 const restart = function() {
