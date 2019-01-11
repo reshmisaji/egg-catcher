@@ -1,15 +1,25 @@
 let lives = 3;
 let scores = 0;
 
+const checkEggStatuses = function(egg, basket, life, interval, eggMargin) {
+  dropEgg(egg, eggMargin);
+  catchEgg(egg, interval, basket);
+  missedEggs(egg, life, interval);
+  return;
+};
+
+const getGameElements = function(eggId) {
+  let life = getElement("live");
+  let basket = getElement("basket");
+  let egg = getElement(eggId);
+  return { life, egg, basket };
+};
+
 const startGame = function(eggId, eggMargin) {
   let timer = 20;
   let interval = setInterval(function() {
-    let life = getElement("live");
-    let basket = getElement("basket");
-    let egg = getElement(eggId);
-    dropEgg(egg, eggMargin);
-    catchEgg(egg, interval, basket);
-    missedEggs(egg, life, interval);
+    let { life, egg, basket } = getGameElements(eggId);
+    checkEggStatuses(egg, basket, life, interval, eggMargin);
   }, timer);
 };
 
@@ -35,23 +45,35 @@ const getElement = function(id) {
   return document.getElementById(id);
 };
 
-const dropEgg = function(egg, eggMargin) {
+const moveEggDownwards = function(egg) {
   let topIncrement = 10;
   let eggTopValue = getPosition(egg, "top") + topIncrement + "px";
-  egg.style.marginLeft = eggMargin + "px";
-  egg.style.top = eggTopValue;
+  return eggTopValue;
 };
 
-const catchEgg = function(egg, interval, basket) {
+const dropEgg = function(egg, eggMargin) {
+  egg.style.marginLeft = eggMargin + "px";
+  egg.style.top = moveEggDownwards(egg);
+};
+
+const getObjectDetails = function(egg, basket) {
   let eggTop = getPosition(egg, "top");
   let eggLeft = getPosition(egg, "marginLeft");
   let basketLeft = getPosition(basket, "marginLeft");
-  let eggInitialTop = -160;
+  return { eggTop, eggLeft, basketLeft };
+};
+
+const incrementScore = function() {
+  return scores++;
+};
+
+const catchEgg = function(egg, interval, basket) {
+  let { eggTop, eggLeft, basketLeft } = getObjectDetails(egg, basket);
 
   if (isInBasket(eggTop, eggLeft, basketLeft)) {
-    scores = scores + 1;
+    incrementScore();
     getElement("score").innerText = scores;
-    egg.style.top = eggInitialTop + "px";
+    egg.style.top = "-160px";
     clearInterval(interval);
   }
 };
