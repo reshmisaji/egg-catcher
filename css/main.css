@@ -1,5 +1,5 @@
 body {
-  background-image: url('/images/bg.png');
+  background-image: url('../images/bg.png');
   background-attachment: fixed;
   background-repeat: no-repeat;
   background-size: 1500px 720px;
@@ -18,8 +18,8 @@ header img{
 }
 
 footer{
-  margin-bottom:-20px;
-  text-align: right;
+  margin-bottom:0px;
+  text-align: center;
   font-size: 25px;
 }
 

@@ -90,7 +90,7 @@ const customiseMessageBody = function() {
 
 const createMessageBody = function() {
   getElement("container").innerHTML =
-    "<img id='message' src='/images/gameOver.png'><h2>Your Score is :" +
+    "<img id='message' src='./images/gameOver.png'><h2>Your Score is :" +
     scores +
     "</h2><button class='restart' onclick='restart()'>RESTART</button>";
 };
@@ -116,14 +116,14 @@ const regulateGameStatus = function(interval) {
 const eggMissed = function(egg, life, interval) {
   egg.style.top = "-160px";
   decrementLives(life);
-  egg.src = "/images/egg.png";
+  egg.src = "./images/egg.png";
   regulateGameStatus(interval);
   return;
 };
 
 const brokenEgg = function(egg, pageTop, eggPosition) {
   if (eggPosition > pageTop - 50) {
-    egg.src = "/images/omlet.png";
+    egg.src = "./images/omlet.png";
   }
   return egg;
 };
